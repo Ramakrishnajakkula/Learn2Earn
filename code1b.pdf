@@ -1,0 +1,229 @@
+To use MongoDB for storing login information, you'll need to set up a backend server with Node.js and Express, connect it to your MongoDB database, and implement API endpoints for user authentication.
+
+### Step 1: Set up the backend server
+
+First, create a new directory for your server:
+
+```bash
+mkdir server
+cd server
+npm init -y
+npm install express mongoose bcryptjs jsonwebtoken cors dotenv
+```
+
+Create the following folder and file structure:
+
+```
+server
+├── models
+│   └── User.js
+├── routes
+│   └── auth.js
+├── .env
+├── server.js
+```
+
+### Step 2: Create the `.env` file
+
+In the `.env` file, add your MongoDB connection string:
+
+```
+MONGO_URI=your_mongo_db_connection_string
+JWT_SECRET=your_jwt_secret
+```
+
+### Step 3: Create the User model
+
+#### `server/models/User.js`
+
+```js
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const userSchema = new mongoose.Schema({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
+```
+
+### Step 4: Create the authentication routes
+
+#### `server/routes/auth.js`
+
+```js
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+router.post(
+  '/register',
+  [
+    body('firstName').not().isEmpty(),
+    body('lastName').not().isEmpty(),
+    body('email').isEmail(),
+    body('password').isLength({ min: 6 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { firstName, lastName, email, password } = req.body;
+
+    try {
+      let user = await User.findOne({ email });
+
+      if (user) {
+        return res.status(400).json({ msg: 'User already exists' });
+      }
+
+      user = new User({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+
+      await user.save();
+
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server error');
+    }
+  }
+);
+
+router.post(
+  '/login',
+  [
+    body('email').isEmail(),
+    body('password').exists(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+
+    try {
+      let user = await User.findOne({ email });
+
+      if (!user) {
+        return res.status(400).json({ msg: 'Invalid Credentials' });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({ msg: 'Invalid Credentials' });
+      }
+
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' },
+        (err, token) => {
+          if (err) throw err;
+          res.json({ token });
+        }
+      );
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server error');
+    }
+  }
+);
+
+module.exports = router;
+```
+
+### Step 5: Set up the server
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+
+
+
+// Directly assigning the MongoDB URI and JWT secret
+const MONGO_URI = "mongodb+srv://ramakrishna:Anji%40178909@cluster0.ifqbcou.mongodb.net/sup?retryWrites=true&w=majority";
+const JWT_SECRET = "your_jwt_secret";
+
+// Debugging log to verify variables
+console.log('MONGO_URI:', MONGO_URI);
+console.log('JWT_SECRET:', JWT_SECRET);
+
+const authRoutes = require('./routes/auth');
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use('/api/auth', authRoutes);
+
+const PORT = process.env.PORT || 5000;
+
+if (!MONGO_URI) {
+  console.error('MONGO_URI is not defined.');
+  process.exit(1);
+}
+
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch(err => {
+    console.error(err.message);
+    process.exit(1);
+  });
