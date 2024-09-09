@@ -30,7 +30,6 @@ mongoose.connect(mongoURI, {
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.log(err));
 
-
 app.use(session({
   secret: 'your_secret_key',
   resave: false,
