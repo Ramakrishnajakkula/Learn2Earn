@@ -1,4 +1,4 @@
-.home-page {
+/* .home-page {
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -56,5 +56,76 @@
   
   .container-fluid {
     width: 100%;
+  }
+   */
+
+   .home-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Ensures the page takes up full viewport height */
+  }
+  
+  .main-content {
+    display: flex;
+    flex: 1; /* Allows the main content to fill the remaining space */
+  }
+  
+  .sidebar {
+    width: 0; /* Hidden by default */
+    transition: width 0.3s; /* Smooth slide effect for open/close */
+    background-color: #f8f9fa; /* Light gray background */
+    overflow: hidden; /* Hides overflow when sidebar is closed */
+    padding: 0; /* No padding by default */
+    border-right: 1px solid #ddd; /* Subtle border for separation */
+    position: absolute; /* Fixed to the left side */
+    height: 100%; /* Full height of the viewport */
+  }
+  
+  .sidebar.open {
+    width: 200px; /* Sidebar width when open */
+  }
+  
+  .sidebar ul {
+    list-style: none; /* Removes bullet points */
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar ul li {
+    margin-bottom: 20px; /* Space between the boxes */
+  }
+  
+  .sidebar ul li a {
+    color: #fff; /* Text color */
+    text-decoration: none; /* No underline */
+    display: block; /* Makes the anchor take up full box area */
+    padding: 10px; /* Adds padding inside the box */
+    background-color: #333; /* White background for the box */
+    border: 1px solid #ddd; /* Border for the box */
+    border-radius: 8px; /* Rounded corners */
+    transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+  }
+  
+  .sidebar ul li a:hover {
+    background-color: #fff; /* Blue background on hover */
+    color: #333; /* White text color on hover */
+    border-color: #fff; /* Darker border color on hover */
+  }
+  
+  
+  .content {
+    flex: 1; /* Content takes up remaining space */
+    padding: 20px; /* Adds spacing around content */
+    transition: margin-left 0.3s; /* Smooth transition for margin change */
+    margin-left: 0; /* Default margin when sidebar is closed */
+    width: 100%; /* Full width when sidebar is closed */
+  }
+  
+  .sidebar.open + .content {
+    margin-left: 200px; /* Adjusts content when sidebar is open */
+  }
+  
+  .container-fluid {
+    width: 100%; /* Ensures fluid container spans the full width */
   }
   
