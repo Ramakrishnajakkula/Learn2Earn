@@ -1,0 +1,730 @@
+Great! Let's integrate Bootstrap styling into your project. We'll start by installing Bootstrap and then updating your components to use Bootstrap classes for styling.
+
+### Step 1: Install Bootstrap
+
+Run the following command to install Bootstrap:
+
+```bash
+npm install bootstrap
+```
+
+### Step 2: Import Bootstrap CSS
+
+You need to import Bootstrap's CSS file into your project. Modify `src/main.jsx` to include the Bootstrap CSS import:
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import App from './App.jsx';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <Router>
+      <Routes>
+        <Route path="/*" element={<App />} />
+      </Routes>
+    </Router>
+  </React.StrictMode>
+);
+```
+
+### Step 3: Update Component Styles
+
+Now, let’s update each component to use Bootstrap classes for styling. 
+
+#### `src/components/HomePage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, Row, Col, Navbar, Nav } from 'react-bootstrap';
+
+function HomePage() {
+  return (
+    <div>
+      <Navbar bg="light" expand="lg">
+        <Container>
+          <Navbar.Brand href="/">Educational Platform</Navbar.Brand>
+          <Nav className="ml-auto">
+            <Nav.Link href="/about">About Us</Nav.Link>
+            <Nav.Link href="/contact">Contact Us</Nav.Link>
+            <Nav.Link href="/privacy">Privacy Policy</Nav.Link>
+            <Nav.Link href="/terms">Terms of Service</Nav.Link>
+          </Nav>
+        </Container>
+      </Navbar>
+      
+      <header className="text-center mt-5 mb-4">
+        <h1>Welcome to Our Educational Platform</h1>
+        <Button variant="primary">Get Started</Button>
+      </header>
+      
+      <Container>
+        <section className="text-center mb-5">
+          <h2>Our Courses</h2>
+          <Row>
+            <Col md={4}>
+              {/* Course thumbnail and description */}
+            </Col>
+          </Row>
+          <Button variant="secondary">View All Courses</Button>
+        </section>
+        
+        <section className="text-center mb-5">
+          <h2>Student Success Stories</h2>
+          <Row>
+            <Col md={4}>
+              {/* Testimonials */}
+            </Col>
+          </Row>
+        </section>
+        
+        <section className="text-center mb-5">
+          <h2>Client Testimonials</h2>
+          <Row>
+            <Col md={4}>
+              {/* Client feedback */}
+            </Col>
+          </Row>
+        </section>
+      </Container>
+      
+      <footer className="bg-light text-center p-3">
+        <div>
+          <Navbar.Brand href="#">Social Media Icons</Navbar.Brand>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+export default HomePage;
+```
+
+To style your `LoginPage` component using Bootstrap, you'll need to incorporate Bootstrap classes for layout, forms, and buttons. Here’s how you can update your component:
+
+#### Updated `LoginPage.jsx`
+
+```jsx
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
+
+function LoginPage() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const { email, password } = formData;
+
+  const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const onSubmit = async e => {
+    e.preventDefault();
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+      localStorage.setItem('token', res.data.token);
+      navigate('/student-dashboard');
+    } catch (err) {
+      setError('Invalid email or password');
+    }
+  };
+
+  return (
+    <Container className="mt-5">
+      <Row className="justify-content-center">
+        <Col md={6} lg={4}>
+          <h2 className="text-center mb-4">Login</h2>
+          {error && <Alert variant="danger">{error}</Alert>}
+          <Form onSubmit={onSubmit}>
+            <Form.Group controlId="formEmail" className="mb-3">
+              <Form.Label>Email:</Form.Label>
+              <Form.Control 
+                type="email" 
+                name="email" 
+                value={email} 
+                onChange={onChange} 
+                placeholder="Enter your email" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group controlId="formPassword" className="mb-3">
+              <Form.Label>Password:</Form.Label>
+              <Form.Control 
+                type="password" 
+                name="password" 
+                value={password} 
+                onChange={onChange} 
+                placeholder="Enter your password" 
+                required 
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit" className="w-100">
+              Login
+            </Button>
+          </Form>
+          <div className="mt-3 text-center">
+            <a href="/forgot-password" className="d-block mb-2">Forgot Password?</a>
+            <a href="/signup">Sign Up</a>
+          </div>
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+
+
+Updated SignUpPage.jsx
+jsx
+Copy code
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
+
+function SignUpPage() {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const { firstName, lastName, email, password, confirmPassword } = formData;
+
+  const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const onSubmit = async e => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      localStorage.setItem('token', res.data.token);
+      navigate('/student-dashboard');
+    } catch (err) {
+      setError('Registration failed. Please try again.');
+    }
+  };
+
+  return (
+    <Container className="mt-5">
+      <Row className="justify-content-center">
+        <Col md={6} lg={4}>
+          <h2 className="text-center mb-4">Sign Up</h2>
+          {error && <Alert variant="danger">{error}</Alert>}
+          <Form onSubmit={onSubmit}>
+            <Form.Group controlId="formFirstName" className="mb-3">
+              <Form.Label>First Name:</Form.Label>
+              <Form.Control 
+                type="text" 
+                name="firstName" 
+                value={firstName} 
+                onChange={onChange} 
+                placeholder="Enter your first name" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group controlId="formLastName" className="mb-3">
+              <Form.Label>Last Name:</Form.Label>
+              <Form.Control 
+                type="text" 
+                name="lastName" 
+                value={lastName} 
+                onChange={onChange} 
+                placeholder="Enter your last name" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group controlId="formEmail" className="mb-3">
+              <Form.Label>Email:</Form.Label>
+              <Form.Control 
+                type="email" 
+                name="email" 
+                value={email} 
+                onChange={onChange} 
+                placeholder="Enter your email" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group controlId="formPassword" className="mb-3">
+              <Form.Label>Password:</Form.Label>
+              <Form.Control 
+                type="password" 
+                name="password" 
+                value={password} 
+                onChange={onChange} 
+                placeholder="Enter your password" 
+                required 
+              />
+            </Form.Group>
+            <Form.Group controlId="formConfirmPassword" className="mb-3">
+              <Form.Label>Confirm Password:</Form.Label>
+              <Form.Control 
+                type="password" 
+                name="confirmPassword" 
+                value={confirmPassword} 
+                onChange={onChange} 
+                placeholder="Confirm your password" 
+                required 
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit" className="w-100">
+              Sign Up
+            </Button>
+          </Form>
+          <div className="mt-3 text-center">
+            <a href="/login">Already have an account? Login</a>
+          </div>
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+export default SignUpPage;
+
+#### `src/components/CourseOverviewPage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, Row, Col, Card } from 'react-bootstrap';
+
+function CourseOverviewPage() {
+  return (
+    <Container className="mt-5">
+      <Row>
+        <Col md={8}>
+          <h2>Course Title</h2>
+          <p>Brief description of the course.</p>
+          <video controls className="w-100 mb-4">
+            <source src="promotional-video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <h3>Course Curriculum</h3>
+          <ul>
+            <li>Module 1: Introduction</li>
+            <li>Module 2: Advanced Techniques</li>
+          </ul>
+          <h3>Instructor Profile</h3>
+          <Card style={{ width: '18rem' }}>
+            <Card.Img variant="top" src="instructor-photo.jpg" />
+            <Card.Body>
+              <Card.Text>
+                Instructor bio goes here.
+              </Card.Text>
+            </Card.Body>
+          </Card>
+          <h3>Student Reviews</h3>
+          <div>
+            <span>⭐⭐⭐⭐⭐</span>
+            <p>Great course! Learned a lot.</p>
+          </div>
+          <h3>Enrollment Options</h3>
+          <p>Price: $100</p>
+          <Button variant="primary">Enroll Now</Button>
+          <Button variant="secondary" className="ms-2">Request More Information</Button>
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+export default CourseOverviewPage;
+```
+
+#### `src/components/CourseCurriculumPage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, ListGroup } from 'react-bootstrap';
+
+function CourseCurriculumPage() {
+  return (
+    <Container className="mt-5">
+      <h2>Course Curriculum</h2>
+      <ListGroup>
+        <ListGroup.Item>
+          Module 1: Introduction
+          <ListGroup className="ms-3">
+            <ListGroup.Item>Lesson 1.1: Basics</ListGroup.Item>
+            <ListGroup.Item>Lesson 1.2: Overview</ListGroup.Item>
+          </ListGroup>
+        </ListGroup.Item>
+        <ListGroup.Item>
+          Module 2: Advanced Techniques
+          <ListGroup className="ms-3">
+            <ListGroup.Item>Lesson 2.1: Techniques</ListGroup.Item>
+            <ListGroup.Item>Lesson 2.2: Practice</ListGroup.Item>
+          </ListGroup>
+        </ListGroup.Item>
+      </ListGroup>
+      <div className="mt-4">
+        <Button variant="secondary" className="me-2">Previous</Button>
+        <Button variant="secondary">Next</Button>
+      </div>
+    </Container>
+  );
+}
+
+export default CourseCurriculumPage;
+```
+
+#### `src/components/StudentDashboard.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, ListGroup, ProgressBar, Image } from 'react-bootstrap';
+
+function StudentDashboard() {
+  return (
+    <Container class
+
+Name="mt-5">
+      <h2>Student Dashboard</h2>
+      <section className="text-center mb-4">
+        <Image src="profile-picture.jpg" roundedCircle />
+        <p>Name: John Doe</p>
+        <p>Short bio goes here.</p>
+      </section>
+      <section>
+        <h3>Progress Summary</h3>
+        <div>
+          <p>Course 1: 50% complete</p>
+          <ProgressBar now={50} />
+        </div>
+        <div className="mt-3">
+          <p>Course 2: 70% complete</p>
+          <ProgressBar now={70} />
+        </div>
+      </section>
+      <section>
+        <h3>My Courses</h3>
+        <ListGroup>
+          <ListGroup.Item>Course 1</ListGroup.Item>
+          <ListGroup.Item>Course 2</ListGroup.Item>
+        </ListGroup>
+      </section>
+      <section>
+        <h3>Upcoming Assignments</h3>
+        <ListGroup>
+          <ListGroup.Item>Assignment 1 - Due: Tomorrow</ListGroup.Item>
+          <ListGroup.Item>Assignment 2 - Due: Next Week</ListGroup.Item>
+        </ListGroup>
+      </section>
+      <section>
+        <h3>Recent Activity</h3>
+        <ListGroup>
+          <ListGroup.Item>Completed Lesson 2.1</ListGroup.Item>
+          <ListGroup.Item>Submitted Assignment 1</ListGroup.Item>
+        </ListGroup>
+      </section>
+      <section>
+        <h3>Messages</h3>
+        <ListGroup>
+          <ListGroup.Item>Message from Instructor</ListGroup.Item>
+          <ListGroup.Item>Notification: New Course Available</ListGroup.Item>
+        </ListGroup>
+      </section>
+    </Container>
+  );
+}
+
+export default StudentDashboard;
+```
+
+#### `src/components/AssignmentSubmissionPage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, Form, ProgressBar } from 'react-bootstrap';
+
+function AssignmentSubmissionPage() {
+  return (
+    <Container className="mt-5">
+      <h2>Submit Assignment</h2>
+      <section className="mb-4">
+        <h3>Assignment Details</h3>
+        <p>Instructions: Complete the following tasks...</p>
+        <p>Deadline: Tomorrow</p>
+      </section>
+      <section className="mb-4">
+        <h3>Submission Form</h3>
+        <Form>
+          <Form.Group controlId="formTitle">
+            <Form.Label>Title</Form.Label>
+            <Form.Control type="text" placeholder="Enter title" />
+          </Form.Group>
+          <Form.Group controlId="formDescription">
+            <Form.Label>Description</Form.Label>
+            <Form.Control as="textarea" rows={3} placeholder="Enter description" />
+          </Form.Group>
+          <Form.Group controlId="formFile">
+            <Form.Label>Upload File</Form.Label>
+            <Form.Control type="file" />
+          </Form.Group>
+          <Button variant="primary" type="submit" className="mt-3">
+            Submit
+          </Button>
+        </Form>
+      </section>
+      <section className="mb-4">
+        <h3>Progress Tracker</h3>
+        <ProgressBar now={0} />
+      </section>
+      <section>
+        <h3>Confirmation Message</h3>
+        <p>Your assignment has been successfully submitted!</p>
+      </section>
+    </Container>
+  );
+}
+
+export default AssignmentSubmissionPage;
+```
+
+#### `src/components/ClientWorkAllocationPage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, Card, ListGroup } from 'react-bootstrap';
+
+function ClientWorkAllocationPage() {
+  return (
+    <Container className="mt-5">
+      <h2>Available Projects</h2>
+      <section>
+        <Card>
+          <Card.Body>
+            <Card.Title>Project 1</Card.Title>
+            <Card.Text>
+              Client: ABC Corp<br />
+              Deadline: Tomorrow
+            </Card.Text>
+            <Button variant="primary" className="me-2">Accept Project</Button>
+            <Button variant="secondary">View Details</Button>
+          </Card.Body>
+        </Card>
+        <Card className="mt-3">
+          <Card.Body>
+            <Card.Title>Project 2</Card.Title>
+            <Card.Text>
+              Client: XYZ Inc<br />
+              Deadline: Next Week
+            </Card.Text>
+            <Button variant="primary" className="me-2">Accept Project</Button>
+            <Button variant="secondary">View Details</Button>
+          </Card.Body>
+        </Card>
+      </section>
+      <section className="mt-4">
+        <h3>Filters</h3>
+        <Button variant="outline-secondary" className="me-2">Sort by Deadline</Button>
+        <Button variant="outline-secondary" className="me-2">Sort by Complexity</Button>
+        <Button variant="outline-secondary">Sort by Client Rating</Button>
+      </section>
+    </Container>
+  );
+}
+
+export default ClientWorkAllocationPage;
+```
+
+#### `src/components/ClientProjectBriefPage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, ListGroup } from 'react-bootstrap';
+
+function ClientProjectBriefPage() {
+  return (
+    <Container className="mt-5">
+      <h2>Project Brief</h2>
+      <section className="mb-4">
+        <h3>Project Title</h3>
+        <p>Client Requirements: Complete the following tasks...</p>
+        <p>Deadline: Tomorrow</p>
+      </section>
+      <section className="mb-4">
+        <h3>Resources Provided</h3>
+        <a href="assets.zip" className="btn btn-link">Download Assets</a>
+      </section>
+      <section className="mb-4">
+        <h3>Communication Logs</h3>
+        <ListGroup>
+          <ListGroup.Item>Message from Client: Please ensure...</ListGroup.Item>
+          <ListGroup.Item>Reply from Student: Understood...</ListGroup.Item>
+        </ListGroup>
+      </section>
+      <section>
+        <Button variant="primary" className="me-2">Ask a Question</Button>
+        <Button variant="success" className="me-2">Submit Work</Button>
+        <Button variant="warning">Request Extension</Button>
+      </section>
+    </Container>
+  );
+}
+
+export default ClientProjectBriefPage;
+```
+
+#### `src/components/QualityControlPage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, Form, ProgressBar, Card } from 'react-bootstrap';
+
+function QualityControlPage() {
+  return (
+    <Container className="mt-5">
+      <h2>Quality Control</h2>
+      <section className="mb-4">
+        <h3>Submitted Video</h3>
+        <video controls className="w-100">
+          <source src="submitted-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </section>
+      <section className="mb-4">
+        <h3>Quality Checklist</h3>
+        <Form>
+          <Form.Check type="checkbox" label="Video Quality" />
+          <Form.Check type="checkbox" label="Adherence to Brief" />
+          <Form.Check type="checkbox" label="Creativity" />
+        </Form>
+      </section>
+      <section className="mb-4">
+        <h3>Reviewer Comments</h3>
+        <Form.Control as="textarea" rows={3} />
+      </section>
+      <section>
+        <Button variant="success" className="me-2">Approve</Button>
+        <Button variant="warning" className="me-2">Request Revisions</Button>
+        <Button variant="danger">Reject</Button>
+      </section>
+    </Container>
+  );
+}
+
+export default QualityControlPage;
+```
+
+#### `src/components/StudentProfilePage.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, ListGroup, Image } from 'react-bootstrap';
+
+function StudentProfilePage() {
+  return (
+    <Container className="mt-5">
+      <h2>Student Profile</h2>
+      <section className="text-center mb-4">
+        <Image src="profile-picture.jpg" roundedCircle />
+        <p>Bio: Student bio goes here.</p>
+        <p>Contact Information: student@example.com</p>
+      </section>
+      <section>
+        <h3>My Courses</h3>
+        <ListGroup>
+          <ListGroup.Item>Course 1 - 50% complete</ListGroup.Item>
+          <ListGroup.Item>Course 2 - 70% complete</ListGroup.Item>
+        </ListGroup>
+      </section>
+      <section>
+        <h3>Completed Projects</h3>
+        <ListGroup>
+          <ListGroup.Item>Project 1</ListGroup.Item>
+          <ListGroup.Item>Project 2</ListGroup.Item>
+        </ListGroup>
+      </section>
+      <section>
+        <h3>Skills</h3>
+        <ListGroup>
+          <ListGroup.Item>Skill 1</ListGroup.Item>
+          <ListGroup.Item>Skill 2</ListGroup.Item>
+        </ListGroup>
+      </section>
+     
+
+ <section>
+        <h3>Reviews from Clients</h3>
+        <ListGroup>
+          <ListGroup.Item>⭐⭐⭐⭐⭐ - Excellent work!</ListGroup.Item>
+          <ListGroup.Item>⭐⭐⭐⭐ - Good job.</ListGroup.Item>
+        </ListGroup>
+      </section>
+      <section className="mt-4">
+        <Button variant="primary">Edit Profile</Button>
+      </section>
+    </Container>
+  );
+}
+
+export default StudentProfilePage;
+```
+
+#### `src/components/AdminDashboard.jsx`
+
+```jsx
+import React from 'react';
+import { Button, Container, ListGroup, Card } from 'react-bootstrap';
+
+function AdminDashboard() {
+  return (
+    <Container className="mt-5">
+      <h2>Admin Dashboard</h2>
+      <section className="mb-4">
+        <h3>Key Metrics</h3>
+        <Card>
+          <Card.Body>
+            <Card.Text>Total Students: 100</Card.Text>
+            <Card.Text>Active Courses: 10</Card.Text>
+            <Card.Text>Pending Projects: 5</Card.Text>
+            <Card.Text>Client Satisfaction: 90%</Card.Text>
+          </Card.Body>
+        </Card>
+      </section>
+      <section className="mb-4">
+        <h3>User Management</h3>
+        <Button variant="primary">Manage Users</Button>
+      </section>
+      <section className="mb-4">
+        <h3>Course Management</h3>
+        <Button variant="primary">Manage Courses</Button>
+      </section>
+      <section className="mb-4">
+        <h3>Project Allocation</h3>
+        <Button variant="primary">Allocate Projects</Button>
+      </section>
+      <section className="mb-4">
+        <h3>Analytics</h3>
+        <Button variant="primary">View Analytics</Button>
+      </section>
+      <section className="mb-4">
+        <h3>Quick Access</h3>
+        <Button variant="secondary" className="me-2">Add New Course</Button>
+        <Button variant="secondary">Approve Project</Button>
+      </section>
+    </Container>
+  );
+}
+
+export default AdminDashboard;
+```
+
+These updates apply Bootstrap styling to your React components, enhancing their appearance and functionality. If you need further customization or have any other requirements, feel free to ask!
