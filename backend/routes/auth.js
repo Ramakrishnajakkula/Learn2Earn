@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
+const config = require('config');
 const Admin = require('../models/Admin');
 
 // Utility to generate JWT token
@@ -21,14 +22,9 @@ const generateToken = (userId) => {
 // @access   Public
 
 router.get('/users', async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-
   try {
-    const users = await User.find().skip(skip).limit(limit);
-    const totalUsers = await User.countDocuments();
-    res.json({ users, totalUsers });
+    const users = await User.find();
+    res.json(users);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

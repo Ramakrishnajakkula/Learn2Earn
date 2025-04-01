@@ -9,7 +9,7 @@ const app = express();
 connectDB();
 
 // Init Middleware
-app.use(express.json());
+app.use(express.json({ extended: false }));
 app.use(cors());
 app.use(bodyParser.json());
 // Define Routes
